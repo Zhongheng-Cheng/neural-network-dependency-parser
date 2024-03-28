@@ -145,8 +145,12 @@ class FeatureExtractor(object):
         return np.array(arr)
 
     def get_output_representation(self, output_pair):  
-        # TODO: Write this method for Part 2
-        return np.zeros(91)
+
+        # take a (transition, label) pair as its parameter and 
+        # return a one-hot representation of these actions
+        rep = np.zeros(91)
+        rep[self.output_labels[output_pair]] = 1
+        return rep
 
      
     
