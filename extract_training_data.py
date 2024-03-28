@@ -2,7 +2,7 @@ from conll_reader import DependencyStructure, conll_reader
 from collections import defaultdict
 import copy
 import sys
-import keras
+# import keras
 import numpy as np
 
 class State(object):
@@ -115,8 +115,34 @@ class FeatureExtractor(object):
         return vocab     
 
     def get_input_representation(self, words, pos, state):
-        # TODO: Write this method for Part 2
-        return np.zeros(6)
+        special_pos = ['CD', 'NNP', 'UNK', 'ROOT', 'NULL']
+        pos[0] = 'ROOT'
+        pos.append('NULL')
+        
+        # use the top-three words on the buffer and the 
+        # next-three word on the stack to represent a state
+        arr = []
+        for i in range(1, 4):
+            if i > len(state.stack):
+                arr.append(-1)
+                continue
+            arr.append(state.stack[-i])
+        for i in range(1, 4):
+            if i > len(state.buffer):
+                arr.append(-1)
+                continue
+            arr.append(state.buffer[-i])
+        
+        # encode words into vocab nums
+        for i in range(len(arr)):
+            if pos[arr[i]] in special_pos:
+                arr[i] = self.word_vocab['<' + pos[arr[i]] + '>']
+            elif words[arr[i]] not in self.word_vocab:
+                arr[i] = self.word_vocab['<UNK>']
+            else:
+                arr[i] = self.word_vocab[words[arr[i]]]
+
+        return np.array(arr)
 
     def get_output_representation(self, output_pair):  
         # TODO: Write this method for Part 2
