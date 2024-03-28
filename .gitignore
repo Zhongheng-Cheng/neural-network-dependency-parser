@@ -1,6 +1,10 @@
 # MacOS system files
 .DS_Store
 
+# training data
+*.vocab
+*.npy
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
