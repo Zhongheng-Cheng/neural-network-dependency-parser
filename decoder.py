@@ -27,11 +27,16 @@ class Parser(object):
         state.stack.append(0)
 
         while state.buffer:
+
+            # use the feature extractor to obtain a representation of the current state
             features = self.extractor.get_input_representation(words, pos, state)
+
+            # iterate probabilities descendingly and get the indice
             features = torch.tensor(features).unsqueeze(0)
             logits = self.model(features)
             best_moves = torch.argsort(logits[0], descending=True)
 
+            # find a permitted transition
             for tran_index in best_moves:
                 transition = self.output_labels[tran_index.item()]
                 if transition[0] == "left_arc":
@@ -45,7 +50,7 @@ class Parser(object):
                 elif transition[0] == "shift":
                     if len(state.buffer) > 1 or (len(state.buffer) <= 1 and not state.stack):
                         state.shift()
-                        # print("shift")
+                        break
 
         result = DependencyStructure()
         for p,c,r in state.deps:
