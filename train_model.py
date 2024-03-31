@@ -10,7 +10,7 @@ from extract_training_data import FeatureExtractor
 
 class DependencyDataset(Dataset):
 
-  def __init__(self, inputs_filename, output_filename):
+  def __init__(self, input_filename, output_filename):
     self.inputs = np.load(input_filename)
     self.outputs = np.load(output_filename)
 
@@ -25,17 +25,22 @@ class DependencyModel(Module):
 
   def __init__(self, word_types, outputs):
     super(DependencyModel, self).__init__()
-    # TODO: complete for part 3
+    self.embedding = Embedding(num_embeddings=word_types, embedding_dim=128)
+    self.hidden_layer = Linear(128 * 6, 128)
+    self.output_layer = Linear(128, 91)
 
   def forward(self, inputs):
-
-    # TODO: complete for part 3
-    return torch.zeros(inputs.shape(0), 91)  # replace this line
+    embedded = self.embedding(inputs)
+    embedded = embedded.view(torch.Size([embedded.size(0), embedded.size(1) * embedded.size(2)]))
+    hidden_out = self.hidden_layer(embedded)
+    hidden_out = relu(hidden_out)
+    out = self.output_layer(hidden_out)
+    return out
 
 
 def train(model, loader): 
 
-  loss_function = NLLoss(reduction='mean')
+  loss_function = NLLLoss(reduction='mean')
 
   LEARNING_RATE = 0.01 
   optimizer = torch.optim.Adagrad(params=model.parameters(), lr=LEARNING_RATE)
@@ -97,15 +102,16 @@ if __name__ == "__main__":
 
 
     model = DependencyModel(len(extractor.word_vocab), len(extractor.output_labels))
+    model.forward(torch.randint(0, 100, [10, 6]))
 
-    dataset = DependencyDataset(sys.argv[1], sys.argv[2])
-    loader = DataLoader(dataset, batch_size = 16, shuffle = True)
+    # dataset = DependencyDataset(sys.argv[1], sys.argv[2])
+    # loader = DataLoader(dataset, batch_size = 16, shuffle = True)
 
-    print("Done loading data")
+    # print("Done loading data")
 
-    # Now train the model
-    for i in range(5): 
-      train(model, loader)
+    # # Now train the model
+    # for i in range(5): 
+    #   train(model, loader)
 
 
-    torch.save(model.state_dict(), sys.argv[3]) 
+    # torch.save(model.state_dict(), sys.argv[3]) 
