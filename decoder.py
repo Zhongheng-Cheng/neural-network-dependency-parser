@@ -26,12 +26,26 @@ class Parser(object):
         state = State(range(1,len(words)))
         state.stack.append(0)
 
-        # TODO: Write the body of this loop for part 5
         while state.buffer:
-          pass # replace
+            features = self.extractor.get_input_representation(words, pos, state)
+            features = torch.tensor(features).unsqueeze(0)
+            logits = self.model(features)
+            best_moves = torch.argsort(logits[0], descending=True)
 
-
-  
+            for tran_index in best_moves:
+                transition = self.output_labels[tran_index.item()]
+                if transition[0] == "left_arc":
+                    if state.stack and state.stack[-1] != 0:
+                        state.left_arc(transition[1])
+                        break
+                elif transition[0] == "right_arc":
+                    if state.stack:
+                        state.right_arc(transition[1])
+                        break
+                elif transition[0] == "shift":
+                    if len(state.buffer) > 1 or (len(state.buffer) <= 1 and not state.stack):
+                        state.shift()
+                        # print("shift")
 
         result = DependencyStructure()
         for p,c,r in state.deps:
