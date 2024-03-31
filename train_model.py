@@ -2,8 +2,8 @@ import sys
 import numpy as np
 import torch
 
-from torch.nn import Module, Linear, Embedding, NLLLoss
-from torch.nn.functional import relu, log_softmax
+from torch.nn import Module, Linear, Embedding, CrossEntropyLoss 
+from torch.nn.functional import relu
 from torch.utils.data import Dataset, DataLoader 
 
 from extract_training_data import FeatureExtractor
@@ -40,7 +40,7 @@ class DependencyModel(Module):
 
 def train(model, loader): 
 
-  loss_function = NLLLoss(reduction='mean')
+  loss_function = CrossEntropyLoss(reduction='mean')
 
   LEARNING_RATE = 0.01 
   optimizer = torch.optim.Adagrad(params=model.parameters(), lr=LEARNING_RATE)
@@ -72,7 +72,7 @@ def train(model, loader):
       print(f"Current average loss: {curr_avg_loss}")
 
     # To compute training accuracy for this epoch 
-    correct += sum(torch.argmax(logits, dim=1) == torch.argmax(targets, dim=1))
+    correct += sum(torch.argmax(predictions, dim=1) == torch.argmax(targets, dim=1))
     total += len(inputs)
       
     # Run the backward pass to update parameters 
@@ -102,16 +102,16 @@ if __name__ == "__main__":
 
 
     model = DependencyModel(len(extractor.word_vocab), len(extractor.output_labels))
-    model.forward(torch.randint(0, 100, [10, 6]))
+    # model.forward(torch.randint(0, 100, [10, 6]))
 
-    # dataset = DependencyDataset(sys.argv[1], sys.argv[2])
-    # loader = DataLoader(dataset, batch_size = 16, shuffle = True)
+    dataset = DependencyDataset(sys.argv[1], sys.argv[2])
+    loader = DataLoader(dataset, batch_size = 16, shuffle = True)
 
-    # print("Done loading data")
+    print("Done loading data")
 
-    # # Now train the model
-    # for i in range(5): 
-    #   train(model, loader)
+    # Now train the model
+    for i in range(5): 
+      train(model, loader)
 
 
-    # torch.save(model.state_dict(), sys.argv[3]) 
+    torch.save(model.state_dict(), sys.argv[3]) 
