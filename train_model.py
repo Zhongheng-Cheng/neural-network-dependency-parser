@@ -40,50 +40,50 @@ class DependencyModel(Module):
 
 def train(model, loader): 
 
-    loss_function = CrossEntropyLoss(reduction='mean')
+	loss_function = CrossEntropyLoss(reduction='mean')
 
-    LEARNING_RATE = 0.01 
-    optimizer = torch.optim.Adagrad(params=model.parameters(), lr=LEARNING_RATE)
+	LEARNING_RATE = 0.01 
+	optimizer = torch.optim.Adagrad(params=model.parameters(), lr=LEARNING_RATE)
 
-    tr_loss = 0 
-    tr_steps = 0
+	tr_loss = 0 
+	tr_steps = 0
 
     # put model in training mode
-    model.train()
+	model.train()
   
 
-    correct = 0 
-    total =  0 
-    for idx, batch in enumerate(loader):
+	correct = 0 
+	total =  0 
+	for idx, batch in enumerate(loader):
   
-        inputs, targets = batch
+		inputs, targets = batch
     
-        predictions = model(torch.LongTensor(inputs))
+		predictions = model(torch.LongTensor(inputs))
 
-        loss = loss_function(predictions, targets)
-        tr_loss += loss.item()
+		loss = loss_function(predictions, targets)
+		tr_loss += loss.item()
 
         #print("Batch loss: ", loss.item()) # Helpful for debugging, maybe 
 
-        tr_steps += 1
+		tr_steps += 1
         
-        if idx % 1000==0:
-            curr_avg_loss = tr_loss / tr_steps
-            print(f"Current average loss: {curr_avg_loss}")
+		if idx % 1000==0:
+			curr_avg_loss = tr_loss / tr_steps
+			print(f"Current average loss: {curr_avg_loss}")
 
         # To compute training accuracy for this epoch 
-        correct += sum(torch.argmax(predictions, dim=1) == torch.argmax(targets, dim=1))
-        total += len(inputs)
+		correct += sum(torch.argmax(predictions, dim=1) == torch.argmax(targets, dim=1))
+		total += len(inputs)
           
         # Run the backward pass to update parameters 
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+		optimizer.zero_grad()
+		loss.backward()
+		optimizer.step()
 
 
-    epoch_loss = tr_loss / tr_steps
-    acc = correct / total
-    print(f"Training loss epoch: {epoch_loss},   Accuracy: {acc}")
+	epoch_loss = tr_loss / tr_steps
+	acc = correct / total
+	print(f"Training loss epoch: {epoch_loss},   Accuracy: {acc}")
 
 
 if __name__ == "__main__":
